@@ -21,8 +21,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                         range.createBookmark();
                         sourceBookmark = true;
                         evt.data = range.content;
-
-                        console.log(window["codemirror_" + editor.id].getCursor());
                     }
                 });
                 editor.on('mode', function () {
