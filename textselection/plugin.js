@@ -2,13 +2,14 @@
 Copyright (c) 2003-2009, CKSource - Frederico Knabben. All rights reserved. 
 For licensing, see LICENSE.html or http://ckeditor.com/license 
 */
- /** 
+    /** 
      * Represent plain text selection range. 
      */
     CKEDITOR.plugins.add('textselection',
     {
         init: function (editor) {
-            var sourceBookmark, wysiwygBookmark, textRange;  // Corresponding text range of wysiwyg bookmark.
+            // Corresponding text range of wysiwyg bookmark.
+            var sourceBookmark, wysiwygBookmark;
 
             // Auto sync text selection with 'WYSIWYG' mode selection range.
             if (editor.config.syncSelection
@@ -16,6 +17,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 editor.on('beforeModeUnload', function (evt) {
                     if (editor.mode === 'source') {
                         var range = editor.getTextSelection();
+
                         // Fly the range when create bookmark. 
                         delete range.element;
                         range.createBookmark();
@@ -82,10 +84,10 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                     if (editor.mode === 'source' && textRange) {
                         textRange.element = new CKEDITOR.dom.element(editor._.editable.$);
                         textRange.select();
+
+                       // window["codemirror_" + editor.id].setCursor(n2linech(window["codemirror_" + editor.id], textRange.startOffset));
                     }
                 });
-
-
             }
         }
     });
@@ -340,5 +342,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
         }
     };
 
-// Seamless selection range across different modes. 
-CKEDITOR.config.syncSelection = true;
+    // Seamless selection range across different modes. 
+    CKEDITOR.config.syncSelection = true;
+
+    var textRange;
