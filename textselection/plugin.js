@@ -7,6 +7,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
      */
     CKEDITOR.plugins.add('textselection',
     {
+        version: 1.00,
         init: function (editor) {
             // Corresponding text range of wysiwyg bookmark.
             var sourceBookmark, wysiwygBookmark;
