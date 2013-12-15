@@ -10,24 +10,27 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
         version: 1.00,
         init: function (editor) {
             // Corresponding text range of wysiwyg bookmark.
-            var sourceBookmark, wysiwygBookmark;
+            var wysiwygBookmark;
 
             // Auto sync text selection with 'WYSIWYG' mode selection range.
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
                 editor.on('beforeModeUnload', function (evt) {
                     if (editor.mode === 'source') {
-                        var range = editor.getTextSelection();
+                        if (editor.mode === 'source' && !editor.plugins.codemirror) {
+                            var range = editor.getTextSelection();
 
-                        // Fly the range when create bookmark. 
-                        delete range.element;
-                        range.createBookmark();
-                        sourceBookmark = true;
-                        evt.data = range.content;
+                            // Fly the range when create bookmark. 
+                            delete range.element;
+                            range.createBookmark();
+                            sourceBookmark = true;
+                            evt.data = range.content;
+                        }
                     }
                 });
                 editor.on('mode', function () {
                     if (editor.mode === 'wysiwyg' && sourceBookmark) {
+
                         editor.focus();
                         var doc = editor.document,
                             range = new CKEDITOR.dom.range(editor.document),
@@ -117,19 +120,24 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             endOffset = element.selectionEnd;
         } else {
             element.focus();
-
+            
             // The current selection 
-            var range = document.selection.createRange(),
-                textLength = range.text.length;
+            if (window.getSelection) {
+                startOffset = element.selectionStart;
+                endOffset = element.selectionEnd;
+            } else {
+                var range = document.selection.createRange(),
+                    textLength = range.text.length;
+                
+                // Create a 'measuring' range to help calculate the start offset by 
+                // stretching it from start to current position. 
+                var measureRange = range.duplicate();
+                measureRange.moveToElementText(element);
+                measureRange.setEndPoint('EndToEnd', range);
 
-            // Create a 'measuring' range to help calculate the start offset by 
-            // stretching it from start to current position. 
-            var measureRange = range.duplicate();
-            measureRange.moveToElementText(element);
-            measureRange.setEndPoint('EndToEnd', range);
-
-            endOffset = measureRange.text.length;
-            startOffset = endOffset - textLength;
+                endOffset = measureRange.text.length;
+                startOffset = endOffset - textLength;
+            }
         }
         return new CKEDITOR.dom.textRange(
             new CKEDITOR.dom.element(element), startOffset, endOffset);
@@ -343,7 +351,16 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
         }
     };
 
+    var Browser = {
+        Version: function() {
+            var version = 999;
+            if (navigator.appVersion.indexOf("MSIE") != -1)
+                version = parseFloat(navigator.appVersion.split("MSIE")[1]);
+            return version;
+        }
+    };
+
     // Seamless selection range across different modes. 
     CKEDITOR.config.syncSelection = true;
 
-    var textRange;
+    var textRange,sourceBookmark;
