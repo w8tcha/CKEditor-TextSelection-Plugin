@@ -7,7 +7,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: 1.00,
+        version: 1.01,
         init: function (editor) {
             // Corresponding text range of wysiwyg bookmark.
             var wysiwygBookmark;
@@ -88,8 +88,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                     if (editor.mode === 'source' && textRange) {
                         textRange.element = new CKEDITOR.dom.element(editor._.editable.$);
                         textRange.select();
-
-                       // window["codemirror_" + editor.id].setCursor(n2linech(window["codemirror_" + editor.id], textRange.startOffset));
                     }
                 });
             }
