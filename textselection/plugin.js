@@ -41,11 +41,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                         range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
                         range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
                         walker = new CKEDITOR.dom.walker(range);
-                        walker.type = CKEDITOR.NODE_COMMENT;
+                       // walker.type = CKEDITOR.NODE_COMMENT;
                         walker.evaluator = function (comment) {
+                           //
+
+
 
                             var match = /cke_bookmark_\d+(\w)/.exec(comment.$.nodeValue);
                             if (match) {
+                               
                                 if (match[1] === 'S') {
                                     startNode = comment;
                                 } else if (match[1] === 'E') {
@@ -59,6 +63,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                         range.setEndBefore(endNode);
                         range.select();
                         // Scroll into view for non-IE. 
+                        // Scroll into view for non-IE. 
                         if (!CKEDITOR.env.ie || (CKEDITOR.env.ie && CKEDITOR.env.version === 9)) {
                             editor.getSelection().getStartElement().scrollIntoView(true);
                         } // Remove the comments node which are out of range. 
@@ -69,6 +74,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
                 editor.on('beforeGetModeData', function () {
                     if (editor.mode === 'wysiwyg') {
+                        if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
+                            return;
+                        }
                         var sel = editor.getSelection(), range;
                         if (sel && (range = sel.getRanges()[0])) {
                             wysiwygBookmark = range.createBookmark(true);
@@ -85,7 +93,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                     }
                 });
                 editor.on('mode', function () {
-                    if (editor.mode === 'source' && textRange) {
+                    if (editor.mode === 'source' && textRange && !editor.plugins.codemirror) {
                         textRange.element = new CKEDITOR.dom.element(editor._.editable.$);
                         textRange.select();
                     }
@@ -197,6 +205,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
             editor.fire('beforeGetModeData');
             var data = editor.getData();
+
             data = editor.fire('beforeModeUnload', data);
             data = editor.fire('afterModeUnload', data);
 
