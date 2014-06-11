@@ -294,7 +294,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
          */
         moveToBookmark: function(bookmark) {
             var content = this.content;
-
             function removeBookmarkText(bookmarkId) {
 
                 var bookmarkRegex = new RegExp('<span[^<]*?' + bookmarkId + '.*?/span>'),
@@ -355,6 +354,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
             this.content = content;
             this.updateElement();
+
+            // ignore changes
+            editor.resetUndo();
         },
 
         updateElement: function() {
