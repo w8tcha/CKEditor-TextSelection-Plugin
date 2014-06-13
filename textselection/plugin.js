@@ -309,6 +309,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             this.endOffset = removeBookmarkText(bookmark.endNode);
             this.content = content;
             this.updateElement();
+
+            editor.undoManager.unlock();
         },
 
         /** 
@@ -352,11 +354,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')
                 + content.substring(end);
 
+            editor.undoManager.lock();
+
             this.content = content;
             this.updateElement();
 
             // ignore changes
-            editor.resetUndo();
+            //editor.resetUndo();
         },
 
         updateElement: function() {
