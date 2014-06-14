@@ -310,7 +310,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             this.content = content;
             this.updateElement();
 
-            editor.undoManager.unlock();
+            if (editor.undoManager) {
+                editor.undoManager.unlock();
+            }
         },
 
         /** 
@@ -354,13 +356,12 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')
                 + content.substring(end);
 
-            editor.undoManager.lock();
+            if (editor.undoManager) {
+                editor.undoManager.lock();
+            }
 
             this.content = content;
             this.updateElement();
-
-            // ignore changes
-            //editor.resetUndo();
         },
 
         updateElement: function() {
