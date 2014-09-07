@@ -7,6 +7,9 @@ Forked from https://github.com/sirtet/ckeditor-dev/tree/master/plugins/textselec
 
 This Plugin will also work with the CodeMirror Plugin - http://ckeditor.com/addon/codemirror
 
+####Demo
+http://w8tcha.github.io/CKEditor-TextSelection-Plugin/
+
 ####License
 
 Licensed under the terms of the MIT License.
