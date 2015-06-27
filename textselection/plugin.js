@@ -12,7 +12,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
             // Corresponding text range of WYSIWYG bookmark.
             var wysiwygBookmark;
 
-            // Auto sync text selection with 'WYSIWYG' mode selection range.
+            // Auto sync text selection with 'wysiwyg' mode selection range.
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
                 editor.on('beforeModeUnload', function (evt) {
@@ -29,7 +29,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                     }
                 });
                 editor.on('mode', function () {
-                    if (editor.mode === 'WYSIWYG' && sourceBookmark) {
+                    if (editor.mode === 'wysiwyg' && sourceBookmark) {
 
                         editor.focus();
                         var doc = editor.document,
@@ -93,7 +93,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 }, null, null, 10);
 
                 editor.on('beforeGetModeData', function () {
-                    if (editor.mode === 'WYSIWYG' && editor.getData()) {
+                    if (editor.mode === 'wysiwyg' && editor.getData()) {
                         if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
                             return;
                         }
@@ -105,7 +105,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
                 });
                 // Build text range right after WYSIWYG has unloaded. 
                 editor.on('afterModeUnload', function (evt) {
-                    if (editor.mode === 'WYSIWYG' && wysiwygBookmark) {
+                    if (editor.mode === 'wysiwyg' && wysiwygBookmark) {
                         textRange = new CKEDITOR.dom.textRange(evt.data);
                         textRange.moveToBookmark(wysiwygBookmark, editor);
 
@@ -205,7 +205,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
      *                // Switch to "source" view.
      *                CKEDITOR.instances.editor1.setMode( 'source' );
      *                // Switch to "WYSIWYG" view and be notified on completion.
-     *                CKEDITOR.instances.editor1.setMode( 'WYSIWYG', function() { alert( 'WYSIWYG mode loaded!' ); } );
+     *                CKEDITOR.instances.editor1.setMode( 'wysiwyg', function() { alert( 'WYSIWYG mode loaded!' ); } );
      *
      * @param {String} [newMode] If not specified, the {@link CKEDITOR.config#startupMode} will be used.
      * @param {Function} [callback] Optional callback function which is invoked once the mode switch has succeeded.
