@@ -7,7 +7,7 @@
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: 1.06,
+        version: "1.07",
         init: function (editor) {
 
             if (editor.config.fullPage) {
@@ -100,6 +100,7 @@
                     if (editor.mode === 'wysiwyg' && editor.getData()) {
                         if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
                             return;
+                            
                         }
                         var sel = editor.getSelection(), range;
                         if (sel && (range = sel.getRanges()[0])) {
@@ -332,6 +333,23 @@
 
             this.startOffset = removeBookmarkText(bookmark.startNode);
             this.endOffset = removeBookmarkText(bookmark.endNode);
+
+            var saveKey = 'textselection_' + window.location + "_" + document.getElementById(editor.name).name;
+
+            // compare length here...            
+            var savedContent = localStorage.getItem(saveKey);
+            
+            var diff = content.length - savedContent.length;
+
+            this.startOffset = this.startOffset - diff;
+
+            if (diff > 0) {
+                //this.endOffset = this.endOffset - diff;
+            }
+
+            content = localStorage.getItem(saveKey);
+            localStorage.removeItem(saveKey);
+
             this.content = content;
             this.updateElement();
 
@@ -346,6 +364,9 @@
         enlarge: function() {
             var htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
             var htmlCloseTagRegexp = /<\/[^>]+>/g;
+
+
+
             var content = this.content,
                 start = this.startOffset,
                 end = this.endOffset,
@@ -389,9 +410,13 @@
             this.endOffset = end;
         },
 
-        createBookmark: function(editor) {
+        createBookmark: function (editor) {
             // Enlarge the range to avoid tag partial selection. 
             this.enlarge();
+
+            // save original content
+            localStorage.setItem('textselection_' + window.location + "_" + document.getElementById(editor.name).name, this.content);
+
             var content = this.content,
                 start = this.startOffset,
                 end = this.endOffset,
@@ -405,6 +430,7 @@
             if (editor.undoManager) {
                 editor.undoManager.lock();
             }
+
 
             this.content = content;
             this.updateElement();
