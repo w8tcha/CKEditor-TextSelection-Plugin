@@ -7,7 +7,7 @@
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: "1.07",
+        version: "1.07.1",
         init: function (editor) {
 
             if (editor.config.fullPage) {
@@ -336,25 +336,29 @@
 
             var saveKey = 'textselection_' + window.location + "_" + document.getElementById(editor.name).name;
 
-            // compare length here...            
-            var savedContent = localStorage.getItem(saveKey);
-            
-            var diff = content.length - savedContent.length;
+            // compare length here...   
+            if (localStorage.getItem(saveKey)) {
+                var savedContent = localStorage.getItem(saveKey);
 
-            this.startOffset = this.startOffset - diff;
+                if (savedContent.length > 0) {
+                    var diff = content.length - savedContent.length;
 
-            if (diff > 0) {
-                //this.endOffset = this.endOffset - diff;
-            }
+                    this.startOffset = this.startOffset - diff;
 
-            content = localStorage.getItem(saveKey);
-            localStorage.removeItem(saveKey);
+                    if (diff > 0) {
+                        //this.endOffset = this.endOffset - diff;
+                    }
 
-            this.content = content;
-            this.updateElement();
+                    content = localStorage.getItem(saveKey);
+                    localStorage.removeItem(saveKey);
 
-            if (editor.undoManager) {
-                editor.undoManager.unlock();
+                    this.content = content;
+                    this.updateElement();
+
+                    if (editor.undoManager) {
+                        editor.undoManager.unlock();
+                    }
+                }
             }
         },
 
