@@ -7,7 +7,7 @@
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: "1.07.1",
+        version: "1.08.0",
         init: function (editor) {
 
             if (editor.config.fullPage) {
@@ -230,6 +230,8 @@
             var isDirty = editor.checkDirty();
 
             editor._.previousMode = editor.mode;
+            // Get cached data, which was set while detaching editable.
+            editor._.previousModeData = editor.getData();
 
             editor.fire('beforeModeUnload');
 
@@ -334,30 +336,24 @@
             this.startOffset = removeBookmarkText(bookmark.startNode);
             this.endOffset = removeBookmarkText(bookmark.endNode);
 
-            var saveKey = 'textselection_' + window.location + "_" + document.getElementById(editor.name).name;
+            var savedContent = editor._.previousModeData;
 
-            // compare length here...   
-            if (localStorage.getItem(saveKey)) {
-                var savedContent = localStorage.getItem(saveKey);
+            if (savedContent.length > 0) {
+                var diff = content.length - savedContent.length;
 
-                if (savedContent.length > 0) {
-                    var diff = content.length - savedContent.length;
+                this.startOffset = this.startOffset - diff;
 
-                    this.startOffset = this.startOffset - diff;
+                if (diff > 0) {
+                    //this.endOffset = this.endOffset - diff;
+                }
 
-                    if (diff > 0) {
-                        //this.endOffset = this.endOffset - diff;
-                    }
+                content = editor._.previousModeData;
 
-                    content = localStorage.getItem(saveKey);
-                    localStorage.removeItem(saveKey);
+                this.content = content;
+                this.updateElement();
 
-                    this.content = content;
-                    this.updateElement();
-
-                    if (editor.undoManager) {
-                        editor.undoManager.unlock();
-                    }
+                if (editor.undoManager) {
+                    editor.undoManager.unlock();
                 }
             }
         },
@@ -417,9 +413,6 @@
         createBookmark: function (editor) {
             // Enlarge the range to avoid tag partial selection. 
             this.enlarge();
-
-            // save original content
-            localStorage.setItem('textselection_' + window.location + "_" + document.getElementById(editor.name).name, this.content);
 
             var content = this.content,
                 start = this.startOffset,
