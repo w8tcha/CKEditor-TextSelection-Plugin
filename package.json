@@ -1,0 +1,21 @@
+{
+  "name": "ckeditor-textselection-plugin",
+  "version": "1.8.0",
+  "author": "w8tcha",
+  "description": "CKEditor plugin that makes the editor keep it's text-selection when switching between WYSIWYG and Source mode, and scrolls the selection into the viewport.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/w8tcha/CKEditor-TextSelection-Plugin.git"
+  },
+  "keywords": [
+    "ckeditor", 
+    "editor", 
+    "wysiwyg", 
+    "html", 
+    "richtext", 
+    "text",
+    "javascript"
+  ],
+  "license": "MIT",
+  "homepage": "http://w8tcha.github.io/CKEditor-TextSelection-Plugin"
+}
