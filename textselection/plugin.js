@@ -5,7 +5,7 @@
     /** 
      * Represent plain text selection range. 
      */
-    CKEDITOR.plugins.add('textselection',
+    CKEDITOR.plugins.add("textselection",
     {
         version: "1.08.0",
         init: function (editor) {
@@ -20,9 +20,9 @@
             // Auto sync text selection with 'wysiwyg' mode selection range.
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
-                editor.on('beforeModeUnload', function (evt) {
-                    if (editor.mode === 'source') {
-                        if (editor.mode === 'source' && !editor.plugins.codemirror) {
+                editor.on("beforeModeUnload", function (evt) {
+                    if (editor.mode === "source") {
+                        if (editor.mode === "source" && !editor.plugins.codemirror) {
                             var range = editor.getTextSelection();
 
                             // Fly the range when create bookmark. 
@@ -33,8 +33,8 @@
                         }
                     }
                 });
-                editor.on('mode', function () {
-                    if (editor.mode === 'wysiwyg' && sourceBookmark) {
+                editor.on("mode", function () {
+                    if (editor.mode === "wysiwyg" && sourceBookmark) {
 
                         editor.focus();
                         var doc = editor.document,
@@ -57,9 +57,9 @@
                                     startNode = endNode = node;
                                     return false;
                                 } else {
-                                    if (match[1] === 'S') {
+                                    if (match[1] === "S") {
                                         startNode = node;
-                                    } else if (match[1] === 'E') {
+                                    } else if (match[1] === "E") {
                                         endNode = node;
                                         return false;
                                     }
@@ -83,8 +83,8 @@
                                 //whatever code is supposed to clean these cke_protected up doesn't work
                                 //when there's two comments in a row like: <!--{cke_protected}{C}--><!--{cke_protected}{C}-->
                                 startNode.$.nodeValue = unescape(startNode.$.nodeValue).
-                                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, '').
-                                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, '');
+                                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, "").
+                                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, "");
                             } else {
                                 //just remove the comment nodes
                                 startNode.remove();
@@ -96,8 +96,8 @@
                     }
                 }, null, null, 10);
 
-                editor.on('beforeGetModeData', function () {
-                    if (editor.mode === 'wysiwyg' && editor.getData()) {
+                editor.on("beforeGetModeData", function () {
+                    if (editor.mode === "wysiwyg" && editor.getData()) {
                         if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
                             return;
                             
@@ -109,22 +109,22 @@
                     }
                 });
                 // Build text range right after WYSIWYG has unloaded. 
-                editor.on('afterModeUnload', function (evt) {
-                    if (editor.mode === 'wysiwyg' && wysiwygBookmark) {
+                editor.on("afterModeUnload", function (evt) {
+                    if (editor.mode === "wysiwyg" && wysiwygBookmark) {
                         textRange = new CKEDITOR.dom.textRange(evt.data);
                         textRange.moveToBookmark(wysiwygBookmark, editor);
 
                         evt.data = textRange.content;
                     }
                 });
-                editor.on('mode', function () {
-                    if (editor.mode === 'source' && textRange && !editor.plugins.codemirror) {
+                editor.on("mode", function () {
+                    if (editor.mode === "source" && textRange && !editor.plugins.codemirror) {
                         textRange.element = new CKEDITOR.dom.element(editor._.editable.$);
                         textRange.select();
                     }
                 });
 
-                editor.on('destroy', function () {
+                editor.on("destroy", function () {
                     textRange = null;
                     sourceBookmark = null;
                 });
@@ -169,7 +169,7 @@
                 // stretching it from start to current position. 
                 var measureRange = range.duplicate();
                 measureRange.moveToElementText(element);
-                measureRange.setEndPoint('EndToEnd', range);
+                measureRange.setEndPoint("EndToEnd", range);
 
                 endOffset = measureRange.text.length;
                 startOffset = endOffset - textLength;
@@ -189,11 +189,11 @@
      */
     CKEDITOR.dom.textRange = function (element, start, end) {
         if (element instanceof CKEDITOR.dom.element
-            && (element.is('textarea')
-                || element.is('input') && element.getAttribute('type') == 'text')) {
+            && (element.is("textarea")
+                || element.is("input") && element.getAttribute("type") == "text")) {
             this.element = element;
             this.content = element.$.value;
-        } else if (typeof element == 'string')
+        } else if (typeof element == "string")
             this.content = element;
         else
             throw 'Unknown "element" type.';
@@ -224,7 +224,7 @@
         if (newMode == editor.mode || !modes || !modes[newMode])
             return;
 
-        editor.fire('beforeSetMode', newMode);
+        editor.fire("beforeSetMode", newMode);
 
         if (editor.mode) {
             var isDirty = editor.checkDirty();
@@ -233,13 +233,13 @@
             // Get cached data, which was set while detaching editable.
             editor._.previousModeData = editor.getData();
 
-            editor.fire('beforeModeUnload');
+            editor.fire("beforeModeUnload");
 
-            editor.fire('beforeGetModeData');
+            editor.fire("beforeGetModeData");
             var data = editor.getData();
 
-            data = editor.fire('beforeModeUnload', data);
-            data = editor.fire('afterModeUnload', data);
+            data = editor.fire("beforeModeUnload", data);
+            data = editor.fire("afterModeUnload", data);
 
             // Detach the current editable.
             editor.editable(0);
@@ -247,9 +247,9 @@
             editor._.data = data;
 
             // Clear up the mode space.
-            editor.ui.space('contents').setHtml('');
+            editor.ui.space("contents").setHtml("");
 
-            editor.mode = '';
+            editor.mode = "";
         }
 
         // Fire the mode handler.
@@ -263,7 +263,7 @@
 
             // Delay to avoid race conditions (setMode inside setMode).
             setTimeout(function () {
-                editor.fire('mode');
+                editor.fire("mode");
                 callback && callback.call(editor);
             }, 0);
         });
@@ -307,8 +307,8 @@
                     element.focus();
                     var range = element.createTextRange();
                     range.collapse(true);
-                    range.moveStart('character', startOffset);
-                    range.moveEnd('character', endOffset - startOffset);
+                    range.moveStart("character", startOffset);
+                    range.moveEnd("character", endOffset - startOffset);
                     range.select();
                 }
             }
@@ -324,11 +324,11 @@
 
             function removeBookmarkText(bookmarkId) {
 
-                var bookmarkRegex = new RegExp('<span[^<]*?' + bookmarkId + '.*?/span>'),
+                var bookmarkRegex = new RegExp("<span[^<]*?" + bookmarkId + ".*?/span>"),
                     offset;
                 content = content.replace(bookmarkRegex, function(str, index) {
                     offset = index;
-                    return '';
+                    return "";
                 });
                 return offset;
             }
@@ -418,10 +418,10 @@
                 start = this.startOffset,
                 end = this.endOffset,
                 id = CKEDITOR.tools.getNextNumber(),
-                bookmarkTemplate = '<!--cke_bookmark_%1-->';
+                bookmarkTemplate = "<!--cke_bookmark_%1-->";
 
-            content = content.substring(0, start) + bookmarkTemplate.replace('%1', id + 'S')
-                + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')
+            content = content.substring(0, start) + bookmarkTemplate.replace("%1", id + "S")
+                + content.substring(start, end) + bookmarkTemplate.replace("%1", id + "E")
                 + content.substring(end);
 
             if (editor.undoManager) {
