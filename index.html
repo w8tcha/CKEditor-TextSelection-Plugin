@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,36 +8,40 @@
     <title>CKEditor TextSelection Plugin</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="stylesheets/bootstrap.css" rel="stylesheet">
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-  </head>
+</head>
 
 <body>
     <div class="container">
-        <div class="header">
-            <ul class="nav nav-pills pull-right">
-                <li class="active"><a href="index.html">Home</a></li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        Demos <span class="caret"></span>
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">TextSelection Plugin for the CKEditor</span>
+            </a>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                        Demos
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="demoFramed.html">Source Area Demo</a></li>
-                        <li><a href="demoCodeMirror.html">Source Area(CodeMirror) Demo</a></li>
+                        <li><a class="dropdown-item" href="demoFramed.html">Source Area Demo</a></li>
+                        <li><a class="dropdown-item" href="demoCodeMirror.html">Source Area(CodeMirror) Demo</a></li>
                     </ul>
                 </li>
-                <li><a href="installation.html">Installation</a></li>
-                <li><a href="http://ckeditor.com/addon/textselection">Download</a></li>
-                <li><a href="https://github.com/w8tcha/CKEditor-TextSelection-Plugin/">View on GitHub</a></li>
+                <li class="nav-item"><a class="nav-link" href="installation.html">Installation</a></li>
+                <li class="nav-item"><a class="nav-link" href="http://ckeditor.com/addon/textselection">Download</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/w8tcha/CKEditor-TextSelection-Plugin/">View on GitHub</a></li>
             </ul>
-            <h3 class="text-muted">TextSelection Plugin for the CKEditor</h3>
-        </div>
+            <h3 class="text-muted"></h3>
+        </header>
 
         <!-- Begin page content -->
         <div class="container">
-            <div class="page-header">
-                <h1>CKEditor-TextSelection-Plugin</h1>
-            </div>
+            <h1>CKEditor-TextSelection-Plugin</h1>
             <p class="lead">The plugin that makes the editor keep it's text-selection when switching between WYSIWYG and Source mode, and scrolls the selection into the viewport.</p>
             <p class="lead">Forked from <a href="https://github.com/sirtet/ckeditor-dev/tree/master/plugins/textselection">https://github.com/sirtet/ckeditor-dev/tree/master/plugins/textselection</a></p>
             <p class="lead">This Plugin will also work with the <a href="http://ckeditor.com/addon/codemirror"><strong>CodeMirror Plugin</strong></a></p>
@@ -53,10 +57,10 @@
 
     <div id="footer">
         <div class="container">
-            <p class="text-muted credit">Licensed under the terms of the MIT License.</p>
+            <p class="text-muted">Licensed under the terms of the MIT License.</p>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="javascripts/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="javascripts/bootstrap.bundle.min.js"></script>
 </body>
 </html>

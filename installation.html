@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,53 +8,59 @@
     <title>CKEditor TextSelection Plugin</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="stylesheets/bootstrap.css" rel="stylesheet">
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-  </head>
+</head>
 
-  <body>
+<body>
 
-      <div class="container">
-          <div class="header">
-              <ul class="nav nav-pills pull-right">
-                  <li><a href="index.html">Home</a></li>
-                  <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                          Demos <span class="caret"></span>
-                      </a>
-                      <ul class="dropdown-menu">
-                          <li><a href="demoFramed.html">Source Area Demo</a></li>
-                          <li><a href="demoCodeMirror.html">Source Area(CodeMirror) Demo</a></li>
-                      </ul>
-                  </li>
-                  <li class="active"><a href="installation.html">Installation</a></li>
-                  <li><a href="http://ckeditor.com/addon/textselection">Download</a></li>
-                  <li><a href="https://github.com/w8tcha/CKEditor-TextSelection-Plugin/">View on GitHub</a></li>
-              </ul>
-              <h3 class="text-muted">TextSelection Plugin for the CKEditor</h3>
-          </div>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">TextSelection Plugin for the CKEditor</span>
+            </a>
 
-          <!-- Begin page content -->
-          <div class="container">
-              <div class="page-header">
-                  <h1>Plugin Installation</h1>
-              </div>
-              <p class="lead">
-                  <ol>
-                      <li>Extract the contents of the file into the "plugins" folder of CKEditor.</li>
-                      <li>In the CKEditor configuration file (config.js) add the following code: <br /><br />
-                          <code>config.extraPlugins = 'textselection';</code></li>
-                  </ol>
-              </p>
-          </div>
-      </div>
-      <div id="footer">
-          <div class="container">
-              <p class="text-muted credit">Licensed under the terms of the MIT License.</p>
-          </div>
-      </div>
-      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-      <script src="javascripts/bootstrap.min.js"></script>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
+                        Demos
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="demoFramed.html">Source Area Demo</a></li>
+                        <li><a class="dropdown-item" href="demoCodeMirror.html">Source Area(CodeMirror) Demo</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link active" href="installation.html">Installation</a></li>
+                <li class="nav-item"><a class="nav-link" href="http://ckeditor.com/addon/textselection">Download</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/w8tcha/CKEditor-TextSelection-Plugin/">View on GitHub</a></li>
+            </ul>
+            <h3 class="text-muted"></h3>
+        </header>
 
-  </body>
+        <!-- Begin page content -->
+        <div class="container">
+            <h1>Plugin Installation</h1>
+            <p class="lead">
+                <ol>
+                    <li>Extract the contents of the file into the "plugins" folder of CKEditor.</li>
+                    <li>
+                        In the CKEditor configuration file (config.js) add the following code: <br /><br />
+                        <code>config.extraPlugins = 'textselection';</code>
+                    </li>
+                </ol>
+            </p>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted">Licensed under the terms of the MIT License.</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="javascripts/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>
