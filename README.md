@@ -1,7 +1,7 @@
 CKEditor-TextSelection-Plugin
 =============================
 
-[![npm version](https://badge.fury.io/js/ckeditor-codemirror-plugin.svg)](https://www.npmjs.com/package/ckeditor-textselection-plugin)
+[![npm version](https://badge.fury.io/js/ckeditor-textselection-plugin.svg)](https://www.npmjs.com/package/ckeditor-textselection-plugin)
 ![license](https://img.shields.io/github/license/w8tcha/ckeditor-textselection-plugin)
 
 The plugin that makes the editor keep it's text-selection when switching between WYSIWYG and Source mode, and scrolls the selection into the viewport.
