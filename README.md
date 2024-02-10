@@ -1,4 +1,4 @@
-CKEditor-TextSelection-Plugin
+# CKEditor-TextSelection-Plugin
 =============================
 
 [![npm version](https://badge.fury.io/js/ckeditor-textselection-plugin.svg)](https://www.npmjs.com/package/ckeditor-textselection-plugin)

@@ -5,9 +5,9 @@
     /** 
      * Represent plain text selection range. 
      */
-    CKEDITOR.plugins.add("textselection",
+    CKEDITOR.plugins.add('textselection',
     {
-        version: "1.08.0",
+        version: '1.09.0',
         init: function (editor) {
 
             if (editor.config.fullPage) {
@@ -20,10 +20,10 @@
             // Auto sync text selection with 'wysiwyg' mode selection range.
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
-                editor.on("beforeModeUnload", function (evt) {
-                    if (editor.mode === "source") {
-                        if (editor.mode === "source" && !editor.plugins.codemirror) {
-                            var range = editor.getTextSelection();
+                editor.on('beforeModeUnload', function (evt) {
+                    if (editor.mode === 'source') {
+                        if (editor.mode === 'source' && !editor.plugins.codemirror) {
+                            const range = editor.getTextSelection();
 
                             // Fly the range when create bookmark. 
                             delete range.element;
@@ -33,23 +33,23 @@
                         }
                     }
                 });
-                editor.on("mode", function () {
-                    if (editor.mode === "wysiwyg" && sourceBookmark) {
+                editor.on('mode', function () {
+                    if (editor.mode === 'wysiwyg' && sourceBookmark) {
 
                         editor.focus();
-                        var doc = editor.document,
-                            range = new CKEDITOR.dom.range(editor.document),
-                            startNode,
+                        const doc = editor.document;
+                        const range = new CKEDITOR.dom.range(editor.document);
+                        var startNode,
                             endNode,
                             isTextNode = false;
 
                         range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
                         range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
-                        var walker = new CKEDITOR.dom.walker(range);
+                        const walker = new CKEDITOR.dom.walker(range);
                         // walker.type = CKEDITOR.NODE_COMMENT;
                         walker.evaluator = function (node) {
                             //
-                            var match = /cke_bookmark_\d+(\w)/.exec(node.$.nodeValue);
+                            const match = /cke_bookmark_\d+(\w)/.exec(node.$.nodeValue);
                             if (match) {
                                 if (unescape(node.$.nodeValue)
                                     .match(/<!--cke_bookmark_[0-9]+S-->.*<!--cke_bookmark_[0-9]+E-->/)){
@@ -57,9 +57,9 @@
                                     startNode = endNode = node;
                                     return false;
                                 } else {
-                                    if (match[1] === "S") {
+                                    if (match[1] === 'S') {
                                         startNode = node;
-                                    } else if (match[1] === "E") {
+                                    } else if (match[1] === 'E') {
                                         endNode = node;
                                         return false;
                                     }
@@ -83,48 +83,49 @@
                                 //whatever code is supposed to clean these cke_protected up doesn't work
                                 //when there's two comments in a row like: <!--{cke_protected}{C}--><!--{cke_protected}{C}-->
                                 startNode.$.nodeValue = unescape(startNode.$.nodeValue).
-                                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, "").
-                                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, "");
+                                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, '').
+                                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, '');
                             } else {
                                 //just remove the comment nodes
                                 startNode.remove();
                                 endNode.remove();
                             }
-                        } catch (excec) {
+                        } catch (ex) {
                         }
                         
                     }
                 }, null, null, 10);
 
-                editor.on("beforeGetModeData", function () {
-                    if (editor.mode === "wysiwyg" && editor.getData()) {
+                editor.on('beforeGetModeData', function () {
+                    if (editor.mode === 'wysiwyg' && editor.getData()) {
                         if (CKEDITOR.env.gecko && !editor.focusManager.hasFocus) {
                             return;
-                            
                         }
-                        var sel = editor.getSelection(), range;
+
+                        const sel = editor.getSelection();
+                        let range;
                         if (sel && (range = sel.getRanges()[0])) {
                             wysiwygBookmark = range.createBookmark(editor);
                         }
                     }
                 });
                 // Build text range right after WYSIWYG has unloaded. 
-                editor.on("afterModeUnload", function (evt) {
-                    if (editor.mode === "wysiwyg" && wysiwygBookmark) {
+                editor.on('afterModeUnload', function (evt) {
+                    if (editor.mode === 'wysiwyg' && wysiwygBookmark) {
                         textRange = new CKEDITOR.dom.textRange(evt.data);
                         textRange.moveToBookmark(wysiwygBookmark, editor);
 
                         evt.data = textRange.content;
                     }
                 });
-                editor.on("mode", function () {
-                    if (editor.mode === "source" && textRange && !editor.plugins.codemirror) {
+                editor.on('mode', function () {
+                    if (editor.mode === 'source' && textRange && !editor.plugins.codemirror) {
                         textRange.element = new CKEDITOR.dom.element(editor._.editable.$);
                         textRange.select();
                     }
                 });
 
-                editor.on("destroy", function () {
+                editor.on('destroy', function () {
                     textRange = null;
                     sourceBookmark = null;
                 });
@@ -162,14 +163,14 @@
                 startOffset = element.selectionStart;
                 endOffset = element.selectionEnd;
             } else {
-                var range = document.selection.createRange(),
-                    textLength = range.text.length;
+                const range = document.selection.createRange();
+                const textLength = range.text.length;
                 
                 // Create a 'measuring' range to help calculate the start offset by 
                 // stretching it from start to current position. 
-                var measureRange = range.duplicate();
+                const measureRange = range.duplicate();
                 measureRange.moveToElementText(element);
-                measureRange.setEndPoint("EndToEnd", range);
+                measureRange.setEndPoint('EndToEnd', range);
 
                 endOffset = measureRange.text.length;
                 startOffset = endOffset - textLength;
@@ -189,11 +190,11 @@
      */
     CKEDITOR.dom.textRange = function (element, start, end) {
         if (element instanceof CKEDITOR.dom.element
-            && (element.is("textarea")
-                || element.is("input") && element.getAttribute("type") == "text")) {
+            && (element.is('textarea')
+                || element.is('input') && element.getAttribute('type') == 'text')) {
             this.element = element;
             this.content = element.$.value;
-        } else if (typeof element == "string")
+        } else if (typeof element == 'string')
             this.content = element;
         else
             throw 'Unknown "element" type.';
@@ -218,13 +219,13 @@
     CKEDITOR.editor.prototype.setMode = function (newMode, callback) {
         var editor = this;
 
-        var modes = this._.modes;
+        const modes = this._.modes;
 
         // Mode loading quickly fails.
         if (newMode == editor.mode || !modes || !modes[newMode])
             return;
 
-        editor.fire("beforeSetMode", newMode);
+        editor.fire('beforeSetMode', newMode);
 
         if (editor.mode) {
             var isDirty = editor.checkDirty();
@@ -233,13 +234,13 @@
             // Get cached data, which was set while detaching editable.
             editor._.previousModeData = editor.getData();
 
-            editor.fire("beforeModeUnload");
+            editor.fire('beforeModeUnload');
 
-            editor.fire("beforeGetModeData");
-            var data = editor.getData();
+            editor.fire('beforeGetModeData');
+            let data = editor.getData();
 
-            data = editor.fire("beforeModeUnload", data);
-            data = editor.fire("afterModeUnload", data);
+            data = editor.fire('beforeModeUnload', data);
+            data = editor.fire('afterModeUnload', data);
 
             // Detach the current editable.
             editor.editable(0);
@@ -247,9 +248,9 @@
             editor._.data = data;
 
             // Clear up the mode space.
-            editor.ui.space("contents").setHtml("");
+            editor.ui.space('contents').setHtml('');
 
-            editor.mode = "";
+            editor.mode = '';
         }
 
         // Fire the mode handler.
@@ -263,13 +264,13 @@
 
             // Delay to avoid race conditions (setMode inside setMode).
             setTimeout(function () {
-                editor.fire("mode");
+                editor.fire('mode');
                 callback && callback.call(editor);
             }, 0);
         });
-    };
+};
 
-    CKEDITOR.dom.textRange.prototype =
+CKEDITOR.dom.textRange.prototype =
     {
         /** 
          * Sets the text selection of the specified textfield/textarea. 
@@ -299,21 +300,25 @@
                     if (CKEDITOR.env.ie) {
                         element.focus();
                     }
+
+                    scrollTo(element, endOffset);
+
                     element.setSelectionRange(startOffset, endOffset);
+
                     if (!CKEDITOR.env.ie) {
                         element.focus();
                     }
                 } else if (element.createTextRange) {
                     element.focus();
-                    var range = element.createTextRange();
+                    const range = element.createTextRange();
                     range.collapse(true);
-                    range.moveStart("character", startOffset);
-                    range.moveEnd("character", endOffset - startOffset);
+                    range.moveStart('character', startOffset);
+                    range.moveEnd('character', endOffset - startOffset);
                     range.select();
                 }
             }
         },
-
+        
         /** 
          * Select the range included within the bookmark text with the bookmark 
          * text removed. 
@@ -324,11 +329,11 @@
 
             function removeBookmarkText(bookmarkId) {
 
-                var bookmarkRegex = new RegExp("<span[^<]*?" + bookmarkId + ".*?/span>"),
-                    offset;
+                const bookmarkRegex = new RegExp(`<span[^<]*?${bookmarkId}.*?/span>`);
+                var offset;
                 content = content.replace(bookmarkRegex, function(str, index) {
                     offset = index;
-                    return "";
+                    return '';
                 });
                 return offset;
             }
@@ -336,10 +341,10 @@
             this.startOffset = removeBookmarkText(bookmark.startNode);
             this.endOffset = removeBookmarkText(bookmark.endNode);
 
-            var savedContent = editor._.previousModeData;
+            const savedContent = editor._.previousModeData;
 
             if (savedContent.length > 0) {
-                var diff = content.length - savedContent.length;
+                const diff = content.length - savedContent.length;
 
                 this.startOffset = this.startOffset - diff;
 
@@ -362,13 +367,12 @@
          * If startOffset/endOffset anchor inside element tag, start the range before/after the element 
          */
         enlarge: function() {
-            var htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
-            var htmlCloseTagRegexp = /<\/[^>]+>/g;
+            const htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
+            const htmlCloseTagRegexp = /<\/[^>]+>/g;
 
 
-
-            var content = this.content,
-                start = this.startOffset,
+            const content = this.content;
+            var start = this.startOffset,
                 end = this.endOffset,
                 match,
                 tagStartIndex,
@@ -414,14 +418,14 @@
             // Enlarge the range to avoid tag partial selection. 
             this.enlarge();
 
-            var content = this.content,
-                start = this.startOffset,
-                end = this.endOffset,
-                id = CKEDITOR.tools.getNextNumber(),
-                bookmarkTemplate = "<!--cke_bookmark_%1-->";
+            var content = this.content;
+            const start = this.startOffset;
+            const end = this.endOffset;
+            const id = CKEDITOR.tools.getNextNumber();
+            const bookmarkTemplate = '<!--cke_bookmark_%1-->';
 
-            content = content.substring(0, start) + bookmarkTemplate.replace("%1", id + "S")
-                + content.substring(start, end) + bookmarkTemplate.replace("%1", id + "E")
+            content = content.substring(0, start) + bookmarkTemplate.replace('%1', id + 'S')
+                + content.substring(start, end) + bookmarkTemplate.replace('%1', id + 'E')
                 + content.substring(end);
 
             if (editor.undoManager) {
@@ -442,13 +446,22 @@
     var Browser = {
         Version: function() {
             var version = 999;
-            if (navigator.appVersion.indexOf("MSIE") != -1)
-                version = parseFloat(navigator.appVersion.split("MSIE")[1]);
+            if (navigator.appVersion.indexOf('MSIE') != -1)
+                version = parseFloat(navigator.appVersion.split('MSIE')[1]);
             return version;
         }
-    };
+};
 
-    // Seamless selection range across different modes. 
-    CKEDITOR.config.syncSelection = true;
+    function scrollTo(textarea, endOffset) {
 
-    var textRange,sourceBookmark;
+        const fullText = textarea.value;
+        textarea.value = fullText.substring(0, endOffset);
+        textarea.scrollTop = textarea.scrollHeight;
+        textarea.scrollLeft = textarea.scrollWidth;
+        textarea.value = fullText;
+    }
+
+// Seamless selection range across different modes. 
+CKEDITOR.config.syncSelection = true;
+
+var textRange, sourceBookmark;
