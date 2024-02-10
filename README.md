@@ -8,7 +8,10 @@ The plugin that makes the editor keep it's text-selection when switching between
 
 Forked from https://github.com/sirtet/ckeditor-dev/tree/master/plugins/textselection
 
-This Plugin will also work with the CodeMirror Plugin - http://ckeditor.com/addon/codemirror
+This Plugin will also work with the CodeMirror Plugin  - http://ckeditor.com/addon/codemirror
+
+> [!NOTE]  
+> The Source Dialog works only in combination with the CodeMirror Plugin
 
 #### Demo
 http://w8tcha.github.io/CKEditor-TextSelection-Plugin/
@@ -28,8 +31,4 @@ config.extraPlugins = 'textselection';
 
 #### Known Issues
 Editor Mode 'fullPage' is not supported - https://ckeditor.com/docs/ckeditor4/latest/features/fullpage.html
-
-#### TODO
-
-* Add Support for the Source Dialog Plugin
 
