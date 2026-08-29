@@ -30,17 +30,25 @@
                         if (editor.mode === 'source' && !editor.plugins.codemirror) {
                             const range = editor.getTextSelection();
 
-                            // Fly the range when create bookmark. 
+                            // Fly the range when create bookmark.
                             delete range.element;
                             range.createBookmark(editor);
                             sourceBookmark = true;
+
+                            // Also expose on the editor so a plugin with its own
+                            // 'source' mode provider (e.g. codemirror), which
+                            // can't see this closure's private variables, can
+                            // still trigger the WYSIWYG restore below.
+                            editor._.textSelectionSourceBookmark = true;
                             evt.data = range.content;
                         }
                     }
                 });
                 editor.on('mode', function () {
-                    if (editor.mode === 'wysiwyg' && sourceBookmark) {
+                    if (editor.mode === 'wysiwyg' && (sourceBookmark || editor._.textSelectionSourceBookmark)) {
                         restoreWysiwygSelectionFromCommentBookmark(editor);
+                        sourceBookmark = false;
+                        editor._.textSelectionSourceBookmark = false;
                     }
                 }, null, null, 10);
 
@@ -66,6 +74,12 @@
                         textRange.moveToBookmark(wysiwygBookmark, editor);
 
                         evt.data = textRange.content;
+
+                        // Also expose on the editor so a plugin with its own
+                        // 'source' mode provider (e.g. codemirror), which
+                        // can't see this closure's private variables, can
+                        // still pick up the restored caret/selection.
+                        editor._.textSelectionRange = textRange;
                     }
                 });
                 editor.on('mode', function () {
@@ -78,6 +92,8 @@
                 editor.on('destroy', function () {
                     textRange = null;
                     sourceBookmark = null;
+                    editor._.textSelectionRange = null;
+                    editor._.textSelectionSourceBookmark = null;
                 });
             }
 
@@ -128,8 +144,15 @@
                                         return offset;
                                     }
 
-                                    startOffset = stripBookmark(bookmark.startNode);
-                                    endOffset = stripBookmark(bookmark.endNode);
+                                    // A collapsed range (plain cursor, nothing selected) only
+                                    // gets a single marker inserted into the DOM; the bookmark's
+                                    // "endNode" id in that case doesn't exist, so reuse the start.
+                                    if (bookmark.collapsed) {
+                                        startOffset = endOffset = stripBookmark(bookmark.startNode);
+                                    } else {
+                                        startOffset = stripBookmark(bookmark.startNode);
+                                        endOffset = stripBookmark(bookmark.endNode);
+                                    }
                                 }
                             }
 
@@ -475,8 +498,15 @@ CKEDITOR.dom.textRange.prototype =
                 return offset;
             }
 
-            this.startOffset = removeBookmarkText(bookmark.startNode);
-            this.endOffset = removeBookmarkText(bookmark.endNode);
+            // A collapsed range (plain cursor, nothing selected) only gets a
+            // single marker inserted into the DOM; the bookmark's "endNode"
+            // id in that case doesn't exist, so reuse the start marker.
+            if (bookmark.collapsed) {
+                this.startOffset = this.endOffset = removeBookmarkText(bookmark.startNode);
+            } else {
+                this.startOffset = removeBookmarkText(bookmark.startNode);
+                this.endOffset = removeBookmarkText(bookmark.endNode);
+            }
 
             const savedContent = editor._.previousModeData;
 
