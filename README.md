@@ -27,6 +27,3 @@ Licensed under the terms of the MIT License.
 ````js
 config.extraPlugins = 'textselection';
 ````
-
-> [!CAUTION]
-> Editor Mode 'fullPage' is not supported - https://ckeditor.com/docs/ckeditor4/latest/features/fullpage.html

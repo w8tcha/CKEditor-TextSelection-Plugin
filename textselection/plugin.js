@@ -7,12 +7,8 @@
      */
     CKEDITOR.plugins.add('textselection',
     {
-        version: '1.09.0',
+        version: '1.09.1',
         init: function (editor) {
-
-            if (editor.config.fullPage) {
-                return;
-            }
 
             // Corresponding text range of WYSIWYG bookmark.
             var wysiwygBookmark;
