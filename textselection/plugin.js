@@ -40,64 +40,7 @@
                 });
                 editor.on('mode', function () {
                     if (editor.mode === 'wysiwyg' && sourceBookmark) {
-
-                        editor.focus();
-                        const doc = editor.document;
-                        const range = new CKEDITOR.dom.range(editor.document);
-                        var startNode,
-                            endNode,
-                            isTextNode = false;
-
-                        range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
-                        range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
-                        const walker = new CKEDITOR.dom.walker(range);
-                        walker.type = CKEDITOR.NODE_COMMENT;
-                        walker.evaluator = function (node) {
-                            //
-                            const match = /cke_bookmark_\d+(\w)/.exec(node.$.nodeValue);
-                            if (match) {
-                                if (unescape(node.$.nodeValue)
-                                    .match(/<!--cke_bookmark_[0-9]+S-->.*<!--cke_bookmark_[0-9]+E-->/)){
-                                    isTextNode = true;
-                                    startNode = endNode = node;
-                                    return false;
-                                } else {
-                                    if (match[1] === 'S') {
-                                        startNode = node;
-                                    } else if (match[1] === 'E') {
-                                        endNode = node;
-                                        return false;
-                                    }
-                                }
-                            }
-                            return false;
-                        };
-                        walker.lastForward();
-                        try {
-                            range.setStartAfter(startNode);
-                            range.setEndBefore(endNode);
-                            range.select();
-
-                            // Scroll into view for non-IE.
-                            if (!CKEDITOR.env.ie || (CKEDITOR.env.ie && CKEDITOR.env.version === 9)) {
-                                editor.getSelection().getStartElement().scrollIntoView(true);
-                            } // Remove the comments node which are out of range.
-                            if (isTextNode) {
-                                //remove all of our bookmarks from the text node
-                                //then remove all of the cke_protected bits that added because we had a comment
-                                //whatever code is supposed to clean these cke_protected up doesn't work
-                                //when there's two comments in a row like: <!--{cke_protected}{C}--><!--{cke_protected}{C}-->
-                                startNode.$.nodeValue = unescape(startNode.$.nodeValue).
-                                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, '').
-                                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, '');
-                            } else {
-                                //just remove the comment nodes
-                                startNode.remove();
-                                endNode.remove();
-                            }
-                        } catch (ex) {
-                        }
-                        
+                        restoreWysiwygSelectionFromCommentBookmark(editor);
                     }
                 }, null, null, 10);
 
@@ -135,6 +78,120 @@
                 editor.on('destroy', function () {
                     textRange = null;
                     sourceBookmark = null;
+                });
+            }
+
+            // Auto sync text selection with the 'Source Dialog' plugin's textarea.
+            // The CodeMirror plugin provides its own integration with
+            // 'sourcedialog' (keyed off editor.plugins.textselection), so this
+            // is only needed when CodeMirror isn't handling the dialog itself.
+            if (editor.config.syncSelection
+                    && editor.plugins.sourcedialog
+                    && !editor.plugins.codemirror) {
+                CKEDITOR.dialog.add('sourcedialog', function (editor) {
+                    const size = CKEDITOR.document.getWindow().getViewPaneSize();
+                    const width = Math.min(size.width - 70, 800);
+                    const height = size.height / 1.5;
+                    var oldData;
+
+                    return {
+                        title: editor.lang.sourcedialog.title,
+                        minWidth: 100,
+                        minHeight: 100,
+
+                        onShow: function () {
+                            const dialog = this;
+                            var startOffset = -1,
+                                endOffset = -1;
+
+                            if (editor.getData()
+                                    && !(CKEDITOR.env.gecko && !editor.focusManager.hasFocus)) {
+                                const sel = editor.getSelection();
+                                let range;
+
+                                if (sel && (range = sel.getRanges()[0])) {
+                                    const bookmark = range.createBookmark(editor);
+                                    var content = editor.getData();
+
+                                    // Remove the bookmark markers from the
+                                    // editable so they don't leak into the
+                                    // document, while noting where they were.
+                                    function stripBookmark(id) {
+                                        const bookmarkRegex = new RegExp(`<span[^<]*?${id}.*?/span>`);
+                                        var offset = -1;
+                                        content = content.replace(bookmarkRegex, function (str, index) {
+                                            offset = index;
+                                            return '';
+                                        });
+                                        const node = editor.document.getById(id);
+                                        node && node.remove();
+                                        return offset;
+                                    }
+
+                                    startOffset = stripBookmark(bookmark.startNode);
+                                    endOffset = stripBookmark(bookmark.endNode);
+                                }
+                            }
+
+                            dialog.setValueOf('main', 'data', oldData = editor.getData());
+
+                            if (startOffset > -1 && endOffset > -1) {
+                                const inputElement = dialog.getContentElement('main', 'data').getInputElement();
+                                new CKEDITOR.dom.textRange(inputElement, startOffset, endOffset).select();
+                            }
+                        },
+
+                        onOk: function () {
+                            const dialog = this;
+                            const inputElement = dialog.getContentElement('main', 'data').getInputElement();
+
+                            // Remove CR from input data for reliable comparison with editor data.
+                            const newData = inputElement.$.value.replace(/\r/g, '');
+
+                            // Avoid unnecessary setData. Also preserve selection
+                            // when user changed their mind and goes back to wysiwyg editing.
+                            if (newData === oldData) {
+                                return true;
+                            }
+
+                            const cursor = getTextSelection(inputElement.$);
+
+                            // Fly the range when create bookmark.
+                            delete cursor.element;
+                            cursor.createBookmark(editor);
+
+                            setTimeout(function () {
+                                editor.focus();
+                                editor.setData(cursor.content, function () {
+                                    dialog.hide();
+                                    restoreWysiwygSelectionFromCommentBookmark(editor);
+
+                                    if (editor.undoManager) {
+                                        editor.undoManager.unlock();
+                                    }
+                                });
+                            });
+
+                            // Don't let the dialog close before setData is over.
+                            return false;
+                        },
+
+                        contents: [{
+                            id: 'main',
+                            label: editor.lang.sourcedialog.title,
+                            elements: [{
+                                type: 'textarea',
+                                id: 'data',
+                                dir: 'ltr',
+                                inputStyle: 'cursor:auto;' +
+                                    'width:' + width + 'px;' +
+                                    'height:' + height + 'px;' +
+                                    'tab-size:4;' +
+                                    'text-align:left;',
+                                'class': 'cke_source'
+                            }]
+                        }]
+                    };
                 });
             }
         }
@@ -187,8 +244,74 @@
             new CKEDITOR.dom.element(element), startOffset, endOffset);
     }
 
-    /** 
-     * Represent the selection range within a HTML textfield/textarea element, 
+    /**
+     * Restores the WYSIWYG selection from a pair of "cke_bookmark_*S/E"
+     * HTML comment markers left in the just-loaded editable content, then
+     * removes those markers. Used both when leaving 'source' mode and when
+     * confirming the 'Source Dialog'.
+     * @param {CKEDITOR.editor} editor
+     */
+    function restoreWysiwygSelectionFromCommentBookmark(editor) {
+        editor.focus();
+        const doc = editor.document;
+        const range = new CKEDITOR.dom.range(editor.document);
+        var startNode,
+            endNode,
+            isTextNode = false;
+
+        range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
+        range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
+        const walker = new CKEDITOR.dom.walker(range);
+        walker.type = CKEDITOR.NODE_COMMENT;
+        walker.evaluator = function (node) {
+            //
+            const match = /cke_bookmark_\d+(\w)/.exec(node.$.nodeValue);
+            if (match) {
+                if (unescape(node.$.nodeValue)
+                    .match(/<!--cke_bookmark_[0-9]+S-->.*<!--cke_bookmark_[0-9]+E-->/)){
+                    isTextNode = true;
+                    startNode = endNode = node;
+                    return false;
+                } else {
+                    if (match[1] === 'S') {
+                        startNode = node;
+                    } else if (match[1] === 'E') {
+                        endNode = node;
+                        return false;
+                    }
+                }
+            }
+            return false;
+        };
+        walker.lastForward();
+        try {
+            range.setStartAfter(startNode);
+            range.setEndBefore(endNode);
+            range.select();
+
+            // Scroll into view for non-IE.
+            if (!CKEDITOR.env.ie || (CKEDITOR.env.ie && CKEDITOR.env.version === 9)) {
+                editor.getSelection().getStartElement().scrollIntoView(true);
+            } // Remove the comments node which are out of range.
+            if (isTextNode) {
+                //remove all of our bookmarks from the text node
+                //then remove all of the cke_protected bits that added because we had a comment
+                //whatever code is supposed to clean these cke_protected up doesn't work
+                //when there's two comments in a row like: <!--{cke_protected}{C}--><!--{cke_protected}{C}-->
+                startNode.$.nodeValue = unescape(startNode.$.nodeValue).
+                    replace(/<!--cke_bookmark_[0-9]+[SE]-->/g, '').
+                    replace(/<!--[\s]*\{cke_protected}[\s]*\{C}[\s]*-->/g, '');
+            } else {
+                //just remove the comment nodes
+                startNode.remove();
+                endNode.remove();
+            }
+        } catch (ex) {
+        }
+    }
+
+    /**
+     * Represent the selection range within a HTML textfield/textarea element,
      * or even a flyweight string content represent the text content. 
      * @constructor 
      * @param {CKEDITOR.dom.element|String} element 

@@ -10,8 +10,7 @@ Forked from https://github.com/sirtet/ckeditor-dev/tree/master/plugins/textselec
 
 This Plugin will also work with the CodeMirror Plugin  - http://ckeditor.com/addon/codemirror
 
-> [!NOTE]  
-> The Source Dialog works only in combination with the CodeMirror Plugin
+This Plugin also works with the Source Dialog plugin - http://ckeditor.com/addon/sourcedialog - with or without the CodeMirror Plugin.
 
 #### Demo
 http://w8tcha.github.io/CKEditor-TextSelection-Plugin/
