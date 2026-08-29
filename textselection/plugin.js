@@ -17,6 +17,11 @@
             // Corresponding text range of WYSIWYG bookmark.
             var wysiwygBookmark;
 
+            // Text range built from a source-mode selection bookmark, and a
+            // flag marking that one was captured. Scoped per editor instance
+            // so multiple editors on one page don't share this state.
+            var textRange, sourceBookmark;
+
             // Auto sync text selection with 'wysiwyg' mode selection range.
             if (editor.config.syncSelection
                     && CKEDITOR.plugins.sourcearea) {
@@ -46,7 +51,7 @@
                         range.setStartAt(doc.getBody(), CKEDITOR.POSITION_AFTER_START);
                         range.setEndAt(doc.getBody(), CKEDITOR.POSITION_BEFORE_END);
                         const walker = new CKEDITOR.dom.walker(range);
-                        // walker.type = CKEDITOR.NODE_COMMENT;
+                        walker.type = CKEDITOR.NODE_COMMENT;
                         walker.evaluator = function (node) {
                             //
                             const match = /cke_bookmark_\d+(\w)/.exec(node.$.nodeValue);
@@ -106,6 +111,8 @@
                         let range;
                         if (sel && (range = sel.getRanges()[0])) {
                             wysiwygBookmark = range.createBookmark(editor);
+                        } else {
+                            wysiwygBookmark = null;
                         }
                     }
                 });
@@ -216,7 +223,15 @@
      * @param {String} [newMode] If not specified, the {@link CKEDITOR.config#startupMode} will be used.
      * @param {Function} [callback] Optional callback function which is invoked once the mode switch has succeeded.
      */
-    CKEDITOR.editor.prototype.setMode = function (newMode, callback) {
+    CKEDITOR.editor.prototype.setMode = (function () {
+        var originalSetMode = CKEDITOR.editor.prototype.setMode;
+
+        return function (newMode, callback) {
+        // Editors that don't have this plugin loaded keep stock behavior.
+        if (!this.plugins.textselection) {
+            return originalSetMode.call(this, newMode, callback);
+        }
+
         var editor = this;
 
         const modes = this._.modes;
@@ -233,8 +248,6 @@
             editor._.previousMode = editor.mode;
             // Get cached data, which was set while detaching editable.
             editor._.previousModeData = editor.getData();
-
-            editor.fire('beforeModeUnload');
 
             editor.fire('beforeGetModeData');
             let data = editor.getData();
@@ -268,7 +281,8 @@
                 callback && callback.call(editor);
             }, 0);
         });
-};
+        };
+    })();
 
 CKEDITOR.dom.textRange.prototype =
     {
@@ -347,10 +361,7 @@ CKEDITOR.dom.textRange.prototype =
                 const diff = content.length - savedContent.length;
 
                 this.startOffset = this.startOffset - diff;
-
-                if (diff > 0) {
-                    //this.endOffset = this.endOffset - diff;
-                }
+                this.endOffset = this.endOffset - diff;
 
                 content = editor._.previousModeData;
 
@@ -367,51 +378,48 @@ CKEDITOR.dom.textRange.prototype =
          * If startOffset/endOffset anchor inside element tag, start the range before/after the element 
          */
         enlarge: function() {
-            const htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
-            const htmlCloseTagRegexp = /<\/[^>]+>/g;
-
-
             const content = this.content;
-            var start = this.startOffset,
-                end = this.endOffset,
-                match,
-                tagStartIndex,
-                tagEndIndex;
 
-            while (match = htmlCloseTagRegexp.exec(content)) {
+            function findEnlargedOffset(offset) {
+                const htmlOpenTagRegexp = /<[a-zA-Z]+(>|.*?[^?]>)/g;
+                const htmlCloseTagRegexp = /<\/[^>]+>/g;
+                var match, tagStartIndex, tagEndIndex;
 
-                tagStartIndex = match.index;
-                tagEndIndex = tagStartIndex + match[0].length;
+                while (match = htmlCloseTagRegexp.exec(content)) {
 
-                if (tagEndIndex < start) {
-                    continue;
-                }
+                    tagStartIndex = match.index;
+                    tagEndIndex = tagStartIndex + match[0].length;
 
-                if (tagStartIndex <= start) {
-                    start = tagStartIndex;
-                    end = tagStartIndex;
+                    if (tagEndIndex < offset) {
+                        continue;
+                    }
+
+                    if (tagStartIndex <= offset) {
+                        return tagStartIndex;
+                    }
                     break;
                 }
-            }
 
-            while (match = htmlOpenTagRegexp.exec(content)) {
+                while (match = htmlOpenTagRegexp.exec(content)) {
 
-                tagStartIndex = match.index;
-                tagEndIndex = tagStartIndex + match[0].length;
+                    tagStartIndex = match.index;
+                    tagEndIndex = tagStartIndex + match[0].length;
 
-                if (tagEndIndex < start) {
-                    continue;
-                }
+                    if (tagEndIndex < offset) {
+                        continue;
+                    }
 
-                if (tagStartIndex <= start) {
-                    start = tagEndIndex;
-                    end = tagEndIndex;
+                    if (tagStartIndex <= offset) {
+                        return tagEndIndex;
+                    }
                     break;
                 }
+
+                return offset;
             }
 
-            this.startOffset = start;
-            this.endOffset = end;
+            this.startOffset = findEnlargedOffset(this.startOffset);
+            this.endOffset = findEnlargedOffset(this.endOffset);
         },
 
         createBookmark: function (editor) {
@@ -461,7 +469,5 @@ CKEDITOR.dom.textRange.prototype =
         textarea.value = fullText;
     }
 
-// Seamless selection range across different modes. 
+// Seamless selection range across different modes.
 CKEDITOR.config.syncSelection = true;
-
-var textRange, sourceBookmark;
